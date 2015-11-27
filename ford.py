@@ -5,11 +5,10 @@ import matplotlib.pyplot as plt
 import pickle
 from sklearn import neighbors
 
-def trainSVC(infile):
+def trainSVR(infile):
     print "reading data from file"
 
-    #cols = numpy.r_[3:33]
-    tData = numpy.genfromtxt(infile, skip_header=1, delimiter=',')#, usecols=cols)
+    tData = numpy.genfromtxt(infile, skip_header=1, delimiter=',', max_rows=10000)
 
     print "finished reading file"
 
@@ -30,7 +29,44 @@ def trainSVC(infile):
 
     print "creating model"
 
-    model = svm.SVC(kernel='rbf', C=10, gamma=0.001, verbose=3)
+    model = svm.SVR(kernel='rbf', C=10, gamma=0.1, verbose=3)
+    model.cache_size = 1024
+
+    print "fitting data"
+
+    model.fit(x,y)
+
+    print "saving model to model.pkl"
+
+    pickle.dump(model, open('model.pkl', 'wb'))
+
+    return {'model':model, 'x':x, 'y':y}
+
+def trainSVC(infile):
+    print "reading data from file"
+
+    tData = numpy.genfromtxt(infile, skip_header=1, delimiter=',', max_rows=10000)
+
+    print "finished reading file"
+
+    x = tData[:,3:11]
+    y = tData[:,2]
+
+    print "N: " + str(x.shape[0])
+
+    mins = x.min(0)
+    x = x - mins
+    x = x - (x.max(0) - x.min(0)) / 2
+    maxs = x.max(0)
+    maxs[maxs==0] = 1
+    x = 2 * x / maxs
+    #maxs = x.max(0)
+    #ranges = maxs - mins
+    #x = 2 * (x - mins) / ranges - 1;
+
+    print "creating model"
+
+    model = svm.SVC(kernel='rbf', C=1000, gamma=0.001, verbose=3)
     model.cache_size = 1024
 
     print "fitting data"
@@ -46,8 +82,45 @@ def trainSVC(infile):
 def trainKNN(infile):
     print "reading data from file"
 
+    tData = numpy.genfromtxt(infile, skip_header=1, delimiter=',', max_rows=100000)
+
+    print "finished reading file"
+
+    x = tData[:,3:33]
+    y = tData[:,2]
+
+    print "N: " + str(x.shape[0])
+
+    mins = x.min(0)
+    x = x - mins
+    x = x - (x.max(0) - x.min(0)) / 2
+    maxs = x.max(0)
+    maxs[maxs==0] = 1
+    x = 2 * x / maxs
+    #maxs = x.max(0)
+    #ranges = maxs - mins
+    #x = 2 * (x - mins) / ranges - 1;
+
+    print "creating KNN model"
+
+    model = neighbors.KNeighborsClassifier(n_neighbors=4, weights='distance', algorithm='auto', n_jobs=-1)
+    model.cache_size = 1024
+
+    print "fitting data"
+
+    model.fit(x,y)
+
+    print "saving model to model.pkl"
+
+    pickle.dump(model, open('model.pkl', 'wb'))
+
+    return {'model':model, 'x':x, 'y':y}
+
+def trainLR(infile):
+    print "reading data from file"
+
     #cols = numpy.r_[3:33]
-    tData = numpy.genfromtxt(infile, skip_header=1, delimiter=',')#, usecols=cols)
+    tData = numpy.genfromtxt(infile, skip_header=1, delimiter=',', max_rows=100000)
 
     print "finished reading file"
 
@@ -68,7 +141,45 @@ def trainKNN(infile):
 
     print "creating model"
 
-    model = neighbors.KNeighborsClassifier(n_neighbors=8, weights='distance', algorithm='auto', n_jobs=-1, verbose=3)
+    model = sklearn.linear_model.LogisticRegression()
+    model.cache_size = 1024
+
+    print "fitting data"
+
+    model.fit(x,y)
+
+    print "saving model to model.pkl"
+
+    pickle.dump(model, open('model.pkl', 'wb'))
+
+    return {'model':model, 'x':x, 'y':y}
+
+def trainLL(infile):
+    print "reading data from file"
+
+    #cols = numpy.r_[3:33]
+    tData = numpy.genfromtxt(infile, skip_header=1, delimiter=',')#, max_rows=100000)
+
+    print "finished reading file"
+
+    x = tData[:,3:11]
+    y = tData[:,2]
+
+    print "N: " + str(x.shape[0])
+
+    mins = x.min(0)
+    x = x - mins
+    x = x - (x.max(0) - x.min(0)) / 2
+    maxs = x.max(0)
+    maxs[maxs==0] = 1
+    x = 2 * x / maxs
+    #maxs = x.max(0)
+    #ranges = maxs - mins
+    #x = 2 * (x - mins) / ranges - 1;
+
+    print "creating model"
+
+    model = sklearn.linear_model.LassoLars()
     model.cache_size = 1024
 
     print "fitting data"
@@ -89,7 +200,7 @@ def test(modelfile, testfile, solutionsfile):
 
     print "finished reading file"
 
-    x = tData[:,3:11]
+    x = tData[:,3:33]
     y = sData[:,2]
 
     mins = x.min(0)
@@ -128,5 +239,5 @@ def test(modelfile, testfile, solutionsfile):
     print "f1: " + str(f1)
 
 if __name__ == "__main__":
-    ford = trainSVC('fordTrain.csv')
-    #test('model_p_cols_only_rvm.pkl', 'fordTest.csv', 'Solution.csv');
+    ford = trainKNN('fordTrain.csv')
+    test('model.pkl', 'fordTest.csv', 'Solution.csv');
