@@ -45,11 +45,11 @@ def trainSVR(infile):
 def trainSVC(infile):
     print "reading data from file"
 
-    tData = numpy.genfromtxt(infile, skip_header=1, delimiter=',', max_rows=10000)
+    tData = numpy.genfromtxt(infile, skip_header=1, delimiter=',')#, max_rows=10000)
 
     print "finished reading file"
 
-    x = tData[:,3:11]
+    x = tData[:,numpy.r_[3:33]]
     y = tData[:,2]
 
     print "N: " + str(x.shape[0])
@@ -66,7 +66,7 @@ def trainSVC(infile):
 
     print "creating model"
 
-    model = svm.SVC(kernel='rbf', C=1000, gamma=0.001, verbose=3)
+    model = svm.SVC(kernel='rbf', C=1, gamma=0.01, verbose=3)
     model.cache_size = 1024
 
     print "fitting data"
@@ -103,7 +103,7 @@ def trainKNN(infile):
 
     print "creating KNN model"
 
-    model = neighbors.KNeighborsClassifier(n_neighbors=4, weights='distance', algorithm='auto', n_jobs=-1)
+    model = neighbors.KNeighborsClassifier(n_neighbors=6, weights='distance', algorithm='auto', n_jobs=-1)
     model.cache_size = 1024
 
     print "fitting data"
@@ -124,7 +124,7 @@ def trainLR(infile):
 
     print "finished reading file"
 
-    x = tData[:,3:11]
+    x = tData[:,3:33]
     y = tData[:,2]
 
     print "N: " + str(x.shape[0])
@@ -162,7 +162,7 @@ def trainLL(infile):
 
     print "finished reading file"
 
-    x = tData[:,3:11]
+    x = tData[:,11:33]
     y = tData[:,2]
 
     print "N: " + str(x.shape[0])
@@ -200,7 +200,7 @@ def test(modelfile, testfile, solutionsfile):
 
     print "finished reading file"
 
-    x = tData[:,3:33]
+    x = tData[:,numpy.r_[3:33]]
     y = sData[:,2]
 
     mins = x.min(0)
@@ -239,5 +239,5 @@ def test(modelfile, testfile, solutionsfile):
     print "f1: " + str(f1)
 
 if __name__ == "__main__":
-    ford = trainKNN('fordTrain.csv')
+    ford = trainSVC('fordTrain.csv')
     test('model.pkl', 'fordTest.csv', 'Solution.csv');
