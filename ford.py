@@ -45,11 +45,11 @@ def trainSVR(infile):
 def trainSVC(infile):
     print "reading data from file"
 
-    tData = numpy.genfromtxt(infile, skip_header=1, delimiter=',')#, max_rows=10000)
+    tData = numpy.genfromtxt(infile, skip_header=1, delimiter=',', max_rows=400000)
 
     print "finished reading file"
 
-    x = tData[:,numpy.r_[3:33]]
+    x = tData[:,numpy.r_[3:22]]
     y = tData[:,2]
 
     print "N: " + str(x.shape[0])
@@ -72,6 +72,7 @@ def trainSVC(infile):
     print "fitting data"
 
     model.fit(x,y)
+    print "best params: " + str(gs.best_params_)
 
     print "saving model to model.pkl"
 
@@ -200,7 +201,7 @@ def test(modelfile, testfile, solutionsfile):
 
     print "finished reading file"
 
-    x = tData[:,numpy.r_[3:33]]
+    x = tData[:,numpy.r_[3:22]]
     y = sData[:,2]
 
     mins = x.min(0)
