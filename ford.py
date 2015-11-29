@@ -72,7 +72,6 @@ def trainSVC(infile):
     print "fitting data"
 
     model.fit(x,y)
-    print "best params: " + str(gs.best_params_)
 
     print "saving model to model.pkl"
 
