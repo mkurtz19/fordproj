@@ -45,12 +45,12 @@ def trainSVR(infile):
 def trainSVC(infile):
     print "reading data from file"
 
-    tData = numpy.genfromtxt(infile, skip_header=1, delimiter=',', max_rows=400000)
+    tData = numpy.genfromtxt(infile, skip_header=1, delimiter=',', max_rows=300000)
 
     print "finished reading file"
 
-    x = tData[:,numpy.r_[3:22]]
-    y = tData[:,2]
+    x = tData[::3,numpy.r_[3:22]]
+    y = tData[::3,2]
 
     print "N: " + str(x.shape[0])
 
