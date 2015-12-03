@@ -9,7 +9,7 @@ from sklearn import neighbors
 import copy
 import ml_metrics as metrics
 
-cols = numpy.r_[3, 4, 6, 7, 10, 11, 12, 14, 17, 18, 20]
+cols = numpy.r_[3, 4, 6, 7, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 27]
 
 def trainSVR(infile):
     print "training"
@@ -81,8 +81,8 @@ def trainSVC(infile):
     #x = z[:,cols]
     #y = z[:,2]>0.5
 
-    x = tData[::10,cols]
-    y = tData[::10,2]
+    x = tData[::1,cols]
+    y = tData[::1,2]
 
     print "N: " + str(x.shape)
 
@@ -98,7 +98,7 @@ def trainSVC(infile):
 
     print "creating model"
 
-    model = svm.SVC(kernel='rbf', C=1, gamma=0.01, verbose=3)
+    model = svm.SVC(kernel='rbf', C=10, gamma=0.01, verbose=3)
     model.cache_size = 2048
 
     print "fitting data"
@@ -147,7 +147,7 @@ def trainKNN(infile):
 
     print "creating KNN model"
 
-    model = neighbors.KNeighborsClassifier(n_neighbors=13, weights='distance', algorithm='auto', n_jobs=-1)
+    model = neighbors.KNeighborsClassifier(n_neighbors=19, weights='uniform', algorithm='auto', n_jobs=-1)
     model.cache_size = 2048
 
     print "fitting data"
@@ -168,20 +168,8 @@ def trainLR(infile):
 
     print "finished reading file"
 
-    inc = 5
-
-    z = []
-
-    for i in range(inc):
-        z.append(tData[i::inc])
-    z = numpy.array(z)
-    z = z.mean(0)
-
-    #x = tData[::50,numpy.r_[3:33]]
-    #y = tData[::50,2]
-
-    x = z[:,numpy.r_[3:33]]
-    y = z[:,2]>0.5
+    x = tData[::1,cols]
+    y = tData[::1,2]
 
     print "N: " + str(x.shape[0])
 
@@ -197,7 +185,7 @@ def trainLR(infile):
 
     print "creating model"
 
-    model = sklearn.linear_model.LogisticRegression(C=10, solver='sag', n_jobs=-1, verbose=3)
+    model = sklearn.linear_model.LogisticRegression(C=1, solver='sag', n_jobs=-1, verbose=3)
     model.cache_size = 2048
 
     print "fitting data"
@@ -394,13 +382,33 @@ def test(modelfile, testfile):
     #plt.savefig("testroc.png")
 
 def show_data():
-    data = pandas.read_csv('fordTrain.csv', header=0, usecols=numpy.r_[1:33], sep=',', nrows=4000)
+    tData = numpy.genfromtxt('fordTrain.csv', skip_header=1, delimiter=',', max_rows=400000)
 
-    parallel_coordinates(data, 'IsAlert')
+    x = tData[:,3:33]
+    y = tData[:,2]
+
+    mins = x.min(0)
+    x = x - mins
+    x = x - (x.max(0) - x.min(0)) / 2
+    maxs = x.max(0)
+    maxs[maxs==0] = 1
+    x = 2 * x / maxs
+
+    d = numpy.zeros(tData.shape)
+    d[:,[0,1]] = tData[:,[0,1]]
+    d[:,2] = y
+    d[:,3:33] = x
+
+    head = 'TrialID,ObsNum,IsAlert,P1,P2,P3,P4,P5,P6,P7,P8,E1,E2,E3,E4,E5,E6,E7,E8,E9,E10,E11,V1,V2,V3,V4,V5,V6,V7,V8,V9,V10,V11'
+    numpy.savetxt('normalized_data.csv', d, delimiter=',', header=head, fmt='%1.3f')
+
+    data = pandas.read_csv('normalized_data.csv', header=0, usecols=numpy.r_[2:33], sep=',', nrows=4000)
+
+    parallel_coordinates(data, 'IsAlert', color=['r','b'])
     plt.show()
 
 if __name__ == "__main__":
-    ford = trainKNN('fordTrain.csv')
-    test('model.pkl', 'fordTrain.csv')
-    holdout_test('model.pkl', 'fordTest.csv', 'Solution.csv')
-    #show_data()
+    #ford = trainKNN('fordTrain.csv')
+    #test('model.pkl', 'fordTrain.csv')
+    #holdout_test('model.pkl', 'fordTest.csv', 'Solution.csv')
+    show_data()
