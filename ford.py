@@ -198,44 +198,6 @@ def trainLR(infile):
 
     return {'model':model, 'x':x, 'y':y}
 
-def trainLL(infile):
-    print "reading data from file"
-
-    #cols = numpy.r_[3:33]
-    tData = numpy.genfromtxt(infile, skip_header=1, delimiter=',')#, max_rows=100000)
-
-    print "finished reading file"
-
-    x = tData[:,11:33]
-    y = tData[:,2]
-
-    print "N: " + str(x.shape[0])
-
-    mins = x.min(0)
-    x = x - mins
-    x = x - (x.max(0) - x.min(0)) / 2
-    maxs = x.max(0)
-    maxs[maxs==0] = 1
-    x = 2 * x / maxs
-    #maxs = x.max(0)
-    #ranges = maxs - mins
-    #x = 2 * (x - mins) / ranges - 1;
-
-    print "creating model"
-
-    model = sklearn.linear_model.LassoLars()
-    model.cache_size = 1024
-
-    print "fitting data"
-
-    model.fit(x,y)
-
-    print "saving model to model.pkl"
-
-    pickle.dump(model, open('model.pkl', 'wb'))
-
-    return {'model':model, 'x':x, 'y':y}
-
 def holdout_test(modelfile, testfile, solutionsfile):
     print "holdout set"
 
@@ -408,7 +370,7 @@ def show_data():
     plt.show()
 
 if __name__ == "__main__":
-    #ford = trainKNN('fordTrain.csv')
-    #test('model.pkl', 'fordTrain.csv')
-    #holdout_test('model.pkl', 'fordTest.csv', 'Solution.csv')
-    show_data()
+    ford = trainSVC('fordTrain.csv')
+    test('model.pkl', 'fordTrain.csv')
+    holdout_test('model.pkl', 'fordTest.csv', 'Solution.csv')
+    #show_data()
