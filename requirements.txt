@@ -60,7 +60,7 @@ system-service==0.1.6
 tornado==4.3
 traitlets==4.0.0
 unity-lens-photos==1.0
-urllib3==1.7.1
+urllib3==1.26.5
 utils==0.8.0
 virtualenv==1.11.4
 wheel==0.24.0
