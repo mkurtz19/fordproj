@@ -16,7 +16,7 @@ decorator==4.0.4
 defer==1.0.6
 dirspec==13.10
 duplicity==0.6.23
-html5lib==0.999
+html5lib==0.999999999
 httplib2==0.8
 ipython==4.0.1
 ipython-genutils==0.1.0
